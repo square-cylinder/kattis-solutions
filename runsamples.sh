@@ -1,7 +1,11 @@
 exec="$1"
 filetocopy="$1"
 if [[ "$1" =~ .*\.cpp ]]; then
-    g++ "$1" -g
+    echo "compiling..."
+    if ! g++ "$1" -g; then
+        echo "compilation failed!"
+        exit 1
+    fi
     exec="./a.out"
 elif [[ "$1" =~ .*\.py ]]; then
     exec="python3 $1"
@@ -14,6 +18,7 @@ samplenames=$(find ./samples/ -name '*.in' | awk 'BEGIN{FS="[/.]"}{print $(NF-1)
 
 allpassed=true
 for name in $samplenames; do
+    echo "running $name"
     output=$($exec < ./samples/$name.in)
     if [ ! $? ]; then
         echo "Testcase failed... ($name)"

@@ -1,8 +1,51 @@
 #include <bits/stdc++.h>
 
-using namespace std;
+/* Common std library items */
+using std::cin;
+using std::cout;
+using std::cerr;
 
-int main(int argc, char** argv) {
-    cout << "Hello world!\n";
+using std::vector;
+using std::pair;
+using std::optional;
+using std::map;
+using std::set;
+using std::unordered_map;
+using std::unordered_set;
+
+/* Less verbose names for common types */
+#define umap unordered_map
+#define uset unordered_set
+
+/* More convenient integer types */
+using i8  = int8_t;
+using u8  = uint8_t;
+using i16 = int16_t;
+using u16 = uint16_t;
+using i32 = int32_t;
+using u32 = uint32_t;
+using i64 = int64_t;
+using u64 = uint64_t;
+
+/* Introduce a less insane way to check for an element in a set or map */
+template<class T1, class T2>
+bool contains(const T1& c, T2 e) { return c.find(e) != c.end(); }
+template<class T>
+vector<T> input_vec(int length) { vector<T> v; v.reserve(length); for (int i = 0; i < length; i++) { T x; cin >> x; v.emplace_back(x); } return v; }
+
+void solve();
+
+i32 main(i32 argc, char** argv) {
+    std::ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+    solve();
     return 0;
+}
+
+/////////BEGINNING OF SOLUTION//////////
+
+void solve() {
+    i32 n;
+    vector<i32> numbers = input_vec<i32>(n);
 }

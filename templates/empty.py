@@ -1,3 +1,6 @@
+import itertools as itt
+import functools as ft
+
 def main():
     pass
 

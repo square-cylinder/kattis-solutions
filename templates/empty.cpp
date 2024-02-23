@@ -98,7 +98,7 @@ i32 main(i32 argc, char** argv) {
 
 /////////BEGINNING OF SOLUTION//////////
 
-void solve() {
+string solve() {
     i32 n;
     vector<i32> numbers = input_vec<i32>(n);
 }

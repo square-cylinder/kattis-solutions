@@ -65,6 +65,30 @@ i32 main(i32 argc, char** argv) {
 /////////BEGINNING OF SOLUTION//////////
 
 string solve() {
-    i32 n;
-    vector<i32> numbers = input_vec<i32>(n);
+    string ipt;
+    cin >> ipt;
+    vector<i32> as, bs, cs;
+    for (i32 i = 0; i < ipt.size(); i++) {
+        switch (ipt[i]) {
+            case 'A': as.emplace_back(i); break;
+            case 'B': bs.emplace_back(i); break;
+            case 'C': cs.emplace_back(i); break;
+            default: assert(false);
+        }
+    }
+    assert(as.size() == bs.size() && bs.size() == cs.size());
+    vector<i32> thing(ipt.size() + 1, 0);
+    for (i32 i = 0; i < as.size(); i++) {
+        i32 m = min(as[i], min(bs[i], cs[i]));
+        i32 M = max(as[i], max(bs[i], cs[i]));
+        thing[m]++;
+        thing[M + 1]--;
+    }
+    i32 maxim = 0;
+    i32 sum = 0;
+    for (i32 i = 0; i < ipt.size(); i++) {
+        sum += thing[i];
+        maxim = max(maxim, sum);
+    }
+    return to_string(maxim);
 }

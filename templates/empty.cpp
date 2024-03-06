@@ -22,6 +22,9 @@ using std::min;
 using std::to_string;
 using std::sqrt;
 using std::hypot;
+using std::abs;
+using std::make_pair;
+
 
 /* Less verbose names for common types */
 #define umap unordered_map

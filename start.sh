@@ -1,6 +1,10 @@
 #! /usr/bin/env sh
-
-name=$(echo $1 | awk 'BEGIN{FS="/"}{split($NF,a,/\?/); print a[1]}')
+ipt=$1
+if [ -z "$ipt" ]; then
+    echo -n "URL: "
+    read ipt
+fi
+name=$(echo $ipt | awk 'BEGIN{FS="/"}{split($NF,a,/\?/); print a[1]}')
 echo "Creating directory \"$name\"..."
 if mkdir "$name" 2> /dev/null; then
     cd "$name"

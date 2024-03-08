@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <bits/stdc++.h>
 
 /* Common std library items */
@@ -68,5 +69,25 @@ i32 main(i32 argc, char** argv) {
 /////////BEGINNING OF SOLUTION//////////
 
 string solve() {
-    return "";
+    i32 n;
+    cin >> n;
+    vector<i32> v = input_vec<i32>(n);
+    std::sort(v.begin(), v.end());
+    do {
+        bool possible = true;
+        for (i32 i = 0; i < n - 1; i++) {
+            if (std::gcd(v[i], v[i + 1]) == 1) {
+                possible = false;
+                break;
+            }
+        }
+        if (possible) {
+            stringstream ss;
+            for (i32 i = 0; i < n; i++) {
+                ss << v[i] << " ";
+            }
+            return ss.str();
+        }
+    } while (std::next_permutation(v.begin(), v.end()));
+    return "Neibb";
 }

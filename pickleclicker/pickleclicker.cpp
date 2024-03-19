@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <string>
 
 /* Common std library items */
 using std::cin;
@@ -68,29 +69,41 @@ i32 main(i32 argc, char** argv) {
 /////////BEGINNING OF SOLUTION//////////
 
 string solve() {
-    i32 n, k;
-    cin >> n >> k;
-    map<i32, i32> entries;
-    map<i32, i32> exits;
+    i32 n, t;
+    cin >> n >> t;
+    vector<pair<i32,i32>> buildings;
     for (i32 i = 0; i < n; i++) {
-        i32 a, b;
-        cin >> a >> b;
-        entries[a]++;
-        exits[b+1]++;
+        i32 p, c;
+        cin >> p >> c;
+        buildings.emplace_back(c, p);
     }
-    i32 best = 0;
-    i32 count = 0;
-    auto from = exits.begin();
-    for (auto to : entries) {
-        i32 passed = to.first - from->first + 1;
-        cerr << passed << "\n";
-        while (passed > k) {
-            count -= from->second;
-            from++;
-            passed = to.first - from->first;
-        } 
-        count += to.second;
-        if (count > best) best = count;
+    vector<i32> v1, v2;
+    v1.resize(t+1, 0);
+    v2.resize(t+1, 0);
+    vector<i32>& cur = v1;
+    vector<i32>& next = v2;
+
+    cur[0] = buildings[0].second;
+    i32 highest = 0;
+    i32 time;
+    for (time = 0 ;; time++) {
+        for (i32 i = highest; i >= 0; i--) {
+            if (cur[i] == 0) continue;
+            if (i + cur[i] >= t) {
+                return to_string(time+1);
+            }
+            next[i+cur[i]] = max(next[i+cur[i]], cur[i]);
+            highest = max(highest, i+cur[i]);
+            for (i32 j = 0; j < buildings.size(); j++) {
+                auto [c, p] = buildings[j];
+                if (c <= i) {
+                    i32 nextprofit = cur[i] + p;
+                    i32 nextmoney = i - c + nextprofit;
+                    next[nextmoney] = max(next[nextmoney], nextprofit);
+                    highest = max(highest, nextmoney);
+                }
+            }
+        }
+        swap(cur, next);
     }
-    return to_string(best);
 }

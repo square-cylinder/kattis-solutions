@@ -71,11 +71,14 @@ i32 main(i32 argc, char** argv) {
 string solve() {
     i32 n, t;
     cin >> n >> t;
-    vector<pair<i32,i32>> buildings;
+    pair<i32,i32> buildings[6];
     for (i32 i = 0; i < n; i++) {
         i32 p, c;
         cin >> p >> c;
-        buildings.emplace_back(c, p);
+        buildings[i] = {c, p};
+    }
+    for (i32 i = n; i < 6; i++) {
+        buildings[i] = {INT_MAX, 0};
     }
     vector<i32> v1, v2;
     v1.resize(t+1, 0);
@@ -84,23 +87,20 @@ string solve() {
     vector<i32>& next = v2;
 
     cur[0] = buildings[0].second;
-    i32 highest = 0;
     i32 time;
     for (time = 0 ;; time++) {
-        for (i32 i = highest; i >= 0; i--) {
+        for (i32 i = t; i >= 0; i--) {
             if (cur[i] == 0) continue;
             if (i + cur[i] >= t) {
                 return to_string(time+1);
             }
             next[i+cur[i]] = max(next[i+cur[i]], cur[i]);
-            highest = max(highest, i+cur[i]);
-            for (i32 j = 0; j < buildings.size(); j++) {
+            for (i32 j = 0; j < 6; j++) {
                 auto [c, p] = buildings[j];
                 if (c <= i) {
                     i32 nextprofit = cur[i] + p;
                     i32 nextmoney = i - c + nextprofit;
                     next[nextmoney] = max(next[nextmoney], nextprofit);
-                    highest = max(highest, nextmoney);
                 }
             }
         }

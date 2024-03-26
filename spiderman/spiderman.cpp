@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-#include <iterator>
 
 /* Common std library items */
 using std::cin;

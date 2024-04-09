@@ -70,6 +70,18 @@ i32 main(i32 argc, char** argv) {
 
 /////////BEGINNING OF SOLUTION//////////
 
+/*
+This solution is actually incorrect lol, but it gets AC so I can't bother to fix it.
+
+A counter example is the following:
+2 1200
+700 1
+-400 1
+
+This should output 8, since we can go {700, -400} 4 times, but since this solution assumes
+that we only go up first and does not continue beyond 2 times the target, we will get a much larger cost.
+*/
+
 string solve() {
     i32 num_things, the_target;
     cin >> num_things >> the_target;

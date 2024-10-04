@@ -71,17 +71,26 @@ i32 main(i32 argc, char** argv) {
 string solve() {
     i32 unique_digits;
     cin >> unique_digits;
-    vector<string> digits = input_vec<string>(unique_digits);
+    //vector<string> digits = input_vec<string>(unique_digits);
+    vector<pair<string, i32>> digits;
+    for (i32 i = 0; i < unique_digits; i++) {
+        string s;
+        cin >> s;
+        digits.emplace_back(s, i);
+    }
+    sort(digits.begin(), digits.end(), [](const pair<string, i32>& v1, const pair<string, i32>& v2){
+        return v1.first.size() > v2.first.size();
+    });
     string number;
     cin >> number;
     i32 outnumber = 0;
     i32 mag = 1;
     for (i32 i = number.size() - 1; i >= 0; ) {
-        for (i32 digit_index = 0; digit_index < unique_digits; digit_index++) {
-            string& digit = digits[digit_index];
+        ///cerr << i << "\n";
+        for (auto&[digit, digit_index] : digits) {
             bool match = true;
-            for (i32 j = digit.size() - 1; j >= 0; j--) {
-                if (number[i] != digit[j]) {
+            for (i32 j = 0; j < digit.size(); j++) {
+                if (number[i - j] != digit[digit.size() - 1 - j]) {
                     match = false;
                     break;
                 }

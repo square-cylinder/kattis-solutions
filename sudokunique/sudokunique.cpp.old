@@ -1,0 +1,226 @@
+#include <bits/stdc++.h>
+#include <string>
+
+/* Don't want to type std:: everywhere */
+using namespace std;
+
+/* Less verbose names for common types */
+#define umap unordered_map
+#define uset unordered_set
+
+/* More convenient integer types */
+using i8  = int8_t;
+using u8  = uint8_t;
+using i16 = int16_t;
+using u16 = uint16_t;
+using i32 = int32_t;
+using u32 = uint32_t;
+using i64 = int64_t;
+using u64 = uint64_t;
+
+string solve();
+
+i32 main(i32 argc, char** argv) {
+    std::ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    string line;
+    do {
+        cout << solve() << endl;
+    } while (getline(cin, line));
+    return 0;
+}
+
+/////////BEGINNING OF SOLUTION//////////
+
+struct V2 {
+    u8 r, c;
+    V2(u8 r, u8 c) : r(r), c(c) {}
+    u8 index() const {
+        return r * 9 + c;
+    }
+    u8 b_index() const {
+        return (r / 3) * 3 + (c / 3);
+    }
+    u16 r_bit() const {
+        return 1 << r;
+    }
+    u16 c_bit() const {
+        return 1 << c;
+    }
+    u16 b_bit() const {
+        return 1 << b_index();
+    }
+    V2 operator+(const V2& other) const {
+        return V2(r + other.r, c + other.c);
+    }
+    V2 next() {
+        u8 nr, nc;
+        nc = c + 1;
+        nr = r;
+        if (nc == 9) {
+            nr++;
+            nc = 0;
+        }
+        return V2(nr, nc);
+    }
+    string stringify() {
+        return "(" + to_string((int)r) + ", " + to_string((int)c) + ")";
+    }
+};
+
+u16 row_mask[9];
+u16 col_mask[9];
+u16 block_mask[9];
+
+bool is_legal(V2 x, i32 digit) {
+    if (row_mask[digit-1] & (1 << x.r)) return false;
+    if (col_mask[digit-1] & (1 << x.c)) return false;
+    if (block_mask[digit-1] & (1 << x.b_index())) return false;
+    return true;
+}
+
+string stringify_board(const vector<i32>& board) {
+    stringstream ss;
+    for (i32 i = 0; i < 9 * 9; i++) {
+        if (i % 9 == 0 && i != 0) ss << "\n";
+        ss << board[i];
+        if (i % 9 != 8) ss << " ";
+    }
+    ss << "\n";
+    return ss.str();
+}
+
+vector<i32> board;
+string solution;
+bool too_many = false;
+
+// Returns changes made
+vector<V2> cross_hatch(i32 digit) {
+    vector<V2> changes;
+    V2 block(0, 0);
+    for (block.r = 0; block.r < 9; block.r += 3) for (block.c = 0; block.c < 9; block.c += 3) {
+        if (block_mask[digit-1] & block.b_bit()) continue;
+        vector<V2> possible;
+        V2 off(0, 0);
+        for (off.r = 0; off.r < 3; off.r++) {
+            if (row_mask[digit-1] & (1 << (block.r + off.r))) continue;
+            for (off.c = 0; off.c < 3; off.c++) {
+                V2 final = off + block;
+                if (col_mask[digit-1] & final.c_bit()) continue;
+                if (board[final.index()] == 0) {
+                    if (row_mask[digit-1] & final.r_bit() || col_mask[digit-1] & final.c_bit() || block_mask[digit-1] & final.b_bit()) {
+                        assert(false);
+                    }
+                    possible.emplace_back(final);
+                }
+            }
+        }
+        if (possible.size() == 1) {
+            board[possible[0].index()] = digit;
+            row_mask[digit-1] |= possible[0].r_bit();
+            col_mask[digit-1] |= possible[0].c_bit();
+            block_mask[digit-1] |= possible[0].b_bit();
+            changes.emplace_back(possible[0]);
+        }
+    }
+    return changes;
+}
+
+vector<pair<V2, i32>> cross_hatch_all() {
+    vector<pair<V2, i32>> changes;
+    bool something_deduced;
+    do {
+        something_deduced = false;
+        for (i32 i = 0; i < 9; i++) {
+            vector<V2> ch = cross_hatch(i+1);
+            for (auto& c : ch) {
+                changes.emplace_back(c, i+1);
+            }
+            something_deduced = ch.size() > 0 || something_deduced;
+        }
+    } while (something_deduced);
+    return changes;
+}
+
+void reverse_updates(const vector<pair<V2, i32>>& updates) {
+    for (auto&[pos, digit] : updates) {
+        row_mask[digit-1] &= ~pos.r_bit();
+        col_mask[digit-1] &= ~pos.c_bit();
+        block_mask[digit-1] &= ~pos.b_bit();
+        board[pos.index()] = 0;
+    }
+}
+
+void explore(V2 pos) {
+    if (pos.r == 9) {
+        if (solution.empty()) {
+            solution = stringify_board(board);
+        } else {
+            too_many = true;
+            return;
+        }
+    }
+    if (board[pos.index()] != 0) return explore(pos.next());
+    for (i32 i = 1; i < 10; i++) {
+        if (is_legal(pos, i)) {
+            solution[pos.index()] = i;
+            row_mask[i]   |= pos.r_bit();
+            col_mask[i]   |= pos.c_bit();
+            block_mask[i] |= pos.b_bit();
+            vector<pair<V2, i32>> updates = cross_hatch_all();
+            explore(pos.next());
+            reverse_updates(updates);
+            row_mask[i]   &= ~pos.r_bit();
+            col_mask[i]   &= ~pos.c_bit();
+            block_mask[i] &= ~pos.b_bit();
+            solution[pos.index()] = 0;
+        }
+    }
+}
+
+string solve() {
+    //cerr << "new test\n";
+    for (i32 i = 0; i < 9; i++) row_mask[i] = col_mask[i] = block_mask[i] = 0;
+    board.clear();
+    string line;
+    V2 in(0,0);
+    bool find_other_job = false;
+    i32 clues = 0;
+    for (in.r = 0; in.r < 9; in.r++) {
+        getline(cin, line);
+        stringstream ss(line);
+        for (in.c = 0; in.c < 9; in.c++) {
+            i32 x;
+            ss >> x;
+            if (x != 0) {
+                if ( (row_mask[x-1] & in.r_bit()) || (col_mask[x-1] & in.c_bit()) || (block_mask[x-1] & in.b_bit()) ) {
+                    find_other_job = true;
+                }
+                row_mask[x-1]   |= in.r_bit();
+                col_mask[x-1]   |= in.c_bit();
+                block_mask[x-1] |= in.b_bit();
+                clues++;
+            }
+            board.emplace_back(x);
+        }
+    }
+    if (find_other_job) {
+        return "Find another job\n";
+    }
+    if (clues <= 16) {
+        return "Non-unique\n";
+    }
+    vector<pair<V2, i32>> updates = cross_hatch_all();
+    cerr << "APPLIED CROSS-HATCHING:\n";
+    cerr << stringify_board(board);
+    too_many = false;
+    solution = "";
+    explore(V2(0,0));
+    if (too_many) {
+        return "Non-unique\n";
+    }
+    if (solution.empty()) {
+        return "Find another job\n";
+    }
+    return solution;
+}
